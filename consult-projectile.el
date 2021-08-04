@@ -86,7 +86,7 @@ See `consult--multi' for a description of the source values."
                                 (seq-filter (lambda (x)
                                               (when-let (file (buffer-file-name x))
                                                 (string-prefix-p root file)))
-                                            (consult--cached-buffers)))))))
+                                            (consult--buffer-query :sort 'visibility)))))))
 
 (defvar consult-projectile--source-projectile-file
       `(:name      "Project File"
