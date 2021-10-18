@@ -1,9 +1,12 @@
 ;;; consult-projectile.el --- Consult integration for porjectile  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021  
+;; Copyright (C) 2021
 
 ;; Author:  Marco Pawłowski
 ;; Keywords: convenience
+;; Version: 0.5
+;; Package-Requires: ((emacs "25.1") (consult "0.12") (projectile "2.5.0"))
+;; URL: https://gitlab.com/OlMon/consult-projectile
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -38,13 +41,13 @@
 
 (defface consult-projectile-projects
   '((t :inherit font-lock-constant-face))
-  "Face used to highlight projects in `consult-projectile'.")
+  "Face used to highlight projects in `consult-projectile'."
+  :group 'consult-projectile)
 
 (defvar consult-projectile--project-history nil)
 
 (defvar consult-projectile-display-info t
-  "Settings to let `consult-projectile' display project information
-in the annotation.")
+  "Settings to let `consult-projectile' display project information in the annotation.")
 
 (defcustom consult-projectile-sources
   '(consult-projectile--source-projectile-buffer
@@ -53,15 +56,17 @@ in the annotation.")
   "Sources used by `consult-projectile'.
 
 See `consult--multi' for a description of the source values."
-  :type '(repeat symbol))
+  :type '(repeat symbol)
+  :group 'consult-projectile)
 
 (defun consult-projectile--choose-file (root)
+  "Create the list of files for the consult chooser based on projectile's notion of files for the project at ROOT."
   (let* ((inv-root (propertize root 'invisible t))
          (files (projectile-project-files root)))
     (mapcar (lambda (f) (concat inv-root f)) files)))
 
 (defun consult-projectile--file (selected-project)
-  "Creates a view for selecting project files"
+  "Create a view for selecting project files for the project at SELECTED-PROJECT."
   (find-file (consult--read
               (consult-projectile--choose-file selected-project)
               :prompt "Project File: "
@@ -94,7 +99,7 @@ See `consult--multi' for a description of the source values."
                    :category  file
                    :face      consult-file
                    :history   file-name-history
-                   :action    ,(lambda (f) (consult--file-action (concat (projectile-acquire-root) f))) 
+                   :action    ,(lambda (f) (consult--file-action (concat (projectile-acquire-root) f)))
                    :enabled   ,#'projectile-project-root
                    :items
                    ,(lambda ()
@@ -116,8 +121,7 @@ See `consult--multi' for a description of the source values."
 
 ;;;###autoload
 (defun consult-projectile ()
-  "Creates a multi view with projectile integration. Displays known projects when there are none
-or the buffers/files accociated with the project."
+  "Create a multi view with projectile integration.   Displays known projects when there are none or the buffers/files accociated with the project."
   (interactive)
   (when-let (buffer (consult--multi consult-projectile-sources
                                     :prompt "Switch to: "
