@@ -1,4 +1,4 @@
-;;; consult-projectile.el --- Consult integration for porjectile  -*- lexical-binding: t; -*-
+;;; consult-projectile.el --- Consult integration for projectile  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021
 
