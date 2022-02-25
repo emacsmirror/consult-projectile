@@ -30,9 +30,11 @@
 ;; Just run the function `consult-projectile' and/or bind it to a hotkey.
 ;;
 ;; To filter the multiview use:
-;; B - For project related buffers
-;; F - For project related files
-;; P - For known projects
+;; b - For project related buffers
+;; d - For project related dirs
+;; f - For project related files
+;; p - For known projects
+;; r - For project recent files
 
 ;;; Code:
 
@@ -77,47 +79,104 @@ See `consult--multi' for a description of the source values."
               :history 'file-name-history)))
 
 (defvar consult-projectile--source-projectile-buffer
-      `(:name      "Project Buffer"
-                   :narrow    (?b . "Buffer")
-                   :category  buffer
-                   :face      consult-buffer
-                   :history   buffer-name-history
-                   :state     ,#'consult--buffer-state
-                   :enabled   ,#'projectile-project-root
-                   :items
-                   ,(lambda ()
-                      (when-let (root (projectile-project-root))
-                        (mapcar #'buffer-name
-                                (seq-filter (lambda (x)
-                                              (when-let (file (buffer-file-name x))
-                                                (string-prefix-p root file)))
-                                            (consult--buffer-query :sort 'visibility)))))))
+  (list :name     "Project Buffer"
+        :narrow   '(?b . "Buffer")
+        :category 'buffer
+        :face     'consult-buffer
+        :history  'buffer-name-history
+        :state    #'consult--buffer-state
+        :enabled  #'projectile-project-root
+        :items
+        (lambda ()
+          (when-let (root (projectile-project-root))
+            (mapcar #'buffer-name
+                    (seq-filter (lambda (x)
+                                  (when-let (file (buffer-file-name x))
+                                    (string-prefix-p root file)))
+                                (consult--buffer-query :sort 'visibility)))))))
+
+(defvar consult-projectile--source-projectile-dir
+  (list :name     "Project Dir"
+        :narrow   '(?d . "Dir")
+        :category 'file
+        :face     'consult-file
+        :history  'file-name-history
+        :action   (lambda (f) (consult--file-action (concat (projectile-acquire-root) f)))
+        :enabled  #'projectile-project-root
+        :items
+        (lambda ()
+          (projectile-project-dirs (projectile-acquire-root)))))
 
 (defvar consult-projectile--source-projectile-file
-      `(:name      "Project File"
-                   :narrow    (?f . "File")
-                   :category  file
-                   :face      consult-file
-                   :history   file-name-history
-                   :action    ,(lambda (f) (consult--file-action (concat (projectile-acquire-root) f)))
-                   :enabled   ,#'projectile-project-root
-                   :items
-                   ,(lambda ()
-                      (projectile-project-files (projectile-acquire-root)))))
+  (list :name     "Project File"
+        :narrow   '(?f . "File")
+        :category 'file
+        :face     'consult-file
+        :history  'file-name-history
+        :action   (lambda (f) (consult--file-action (concat (projectile-acquire-root) f)))
+        :enabled  #'projectile-project-root
+        :items
+        (lambda ()
+          (projectile-project-files (projectile-acquire-root)))))
 
+(defvar consult-projectile--source-projectile-recentf
+  (list :name     "Project Recent File"
+        :narrow   '(?r . "Recent File")
+        :category 'file
+        :face     'consult-file
+        :history  'file-name-history
+        :action   (lambda (f) (consult--file-action (concat (projectile-acquire-root) f)))
+        :enabled  #'projectile-project-root
+        :items    #'projectile-recentf-files))
 
 (defvar consult-projectile--source-projectile-project
-      `(:name      "Known Project"
-                   :narrow    (?p . "Project")
-                   :category  'consult-projectile-project
-                   :face      consult-projectile-projects
-                   :history   consult-projectile--project-history
-                   :annotate  ,(lambda (dir) (if consult-projectile-display-info (progn
-                                                                                   (format "Project: %s [%s]"
-                                                                                           (projectile-project-name dir)
-                                                                                           (projectile-project-vcs dir)))))
-                   :action    ,#'consult-projectile--file
-                   :items     ,#'projectile-relevant-known-projects))
+  (list :name     "Known Project"
+        :narrow   '(?p . "Project")
+        :category 'consult-projectile-project
+        :face     'consult-projectile-projects
+        :history  'consult-projectile--project-history
+        :annotate (lambda (dir)
+                    (when consult-projectile-display-info
+                      (format "Project: %s [%s]"
+                              (projectile-project-name dir)
+                              (projectile-project-vcs dir))))
+        :action   #'consult-projectile--file
+        :items    #'projectile-relevant-known-projects))
+
+;;;###autoload
+(defun consult-projectile-switch-to-buffer ()
+  "Swith to a project buffer using `consult'."
+  (interactive)
+  (let ((consult-projectile-sources '(consult-projectile--source-projectile-buffer)))
+    (call-interactively #'consult-projectile)))
+
+;;;###autoload
+(defun consult-projectile-find-dir ()
+  "Jump to a project's directory using `consult'."
+  (interactive)
+  (let ((consult-projectile-sources '(consult-projectile--source-projectile-dir)))
+    (call-interactively #'consult-projectile)))
+
+;;;###autoload
+(defun consult-projectile-find-file ()
+  "Jump to a project's file using `consult'."
+  (interactive)
+  (let ((consult-projectile-sources '(consult-projectile--source-projectile-file)))
+    (call-interactively #'consult-projectile)))
+
+;;;###autoload
+(defun consult-projectile-recentf ()
+  "Show a list of recently visited files in a project using `consult'."
+  (interactive)
+  (let ((consult-projectile-sources '(consult-projectile--source-projectile-recentf)))
+    (call-interactively #'consult-projectile)))
+
+;;;###autoload
+(defun consult-projectile-switch-project ()
+  "Switch to a projectile visted before using `consult'."
+  (interactive)
+  (let ((consult-projectile-sources '(consult-projectile--source-projectile-project)))
+    (call-interactively #'consult-projectile)))
 
 ;;;###autoload
 (defun consult-projectile ()
