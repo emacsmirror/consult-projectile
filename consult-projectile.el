@@ -58,6 +58,12 @@
 (defvar consult-projectile-display-info t
   "Settings to let `consult-projectile' display project information in the annotation.")
 
+(defvar consult-projectile-use-projectile-switch-project nil
+  "If non-nil will use `projectile-switch-project'
+when switching from one project to an other.
+This allows the use of `projectile-swtich-project-action'.
+Default is to use `consult-projectile-find-file'.")
+
 (defcustom consult-projectile-sources
   '(consult-projectile--source-projectile-buffer
     consult-projectile--source-projectile-file
@@ -147,7 +153,11 @@ See `consult--multi' for a description of the source values."
                       (format "Project: %s [%s]"
                               (projectile-project-name dir)
                               (projectile-project-vcs dir))))
-        :action   #'consult-projectile--file
+        :action   (lambda (dir)
+                    (let ((ppr (projectile-project-root)))
+                      (if (and ppr consult-projectile-use-projectile-switch-project)
+                          (projectile-switch-project-by-name dir)
+                        (consult-projectile--file dir))))
         :items    #'projectile-relevant-known-projects))
 
 ;;;###autoload
