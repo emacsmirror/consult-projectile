@@ -77,7 +77,7 @@ See `consult--multi' for a description of the source values."
 (defun consult-projectile--choose-file (root)
   "Create the list of files for the consult chooser based on projectile's notion of files for the project at ROOT."
   (let* ((inv-root (propertize root 'invisible t))
-         (files (projectile-project-files root)))
+         (files (projectile-project-files (expand-file-name root))))
     (mapcar (lambda (f) (concat inv-root f)) files)))
 
 (defun consult-projectile--file (selected-project)
