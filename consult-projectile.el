@@ -4,7 +4,7 @@
 
 ;; Author:  Marco Pawłowski
 ;; Keywords: convenience
-;; Version: 0.5
+;; Version: 0.6
 ;; Package-Requires: ((emacs "25.1") (consult "0.12") (projectile "2.5.0"))
 ;; URL: https://gitlab.com/OlMon/consult-projectile
 
@@ -91,6 +91,20 @@ See `consult--multi' for a description of the source values."
               :state (consult--file-preview)
               :history 'file-name-history)))
 
+(defun consult-projectile--source-projectile-project-action (dir)
+  "Function to choose file at project root DIR.
+This function will call `projectile-switch-project' if
+`consult-projectile-use-projectile-switch-project' is t."
+  (let ((ppr (projectile-project-root)))
+    (if (and ppr consult-projectile-use-projectile-switch-project)
+        (projectile-switch-project-by-name dir)
+      (consult-projectile--file dir))))
+
+(defvar consult-projectile-source-projectile-project-action
+  'consult-projectile--source-projectile-project-action
+  "Variable that stores the function that is called after selecting a project.
+Function must take one argument, the selected project root directory.")
+
 (defvar consult-projectile--source-projectile-buffer
   (list :name     "Project Buffer"
         :narrow   '(?b . "Buffer")
@@ -153,11 +167,7 @@ See `consult--multi' for a description of the source values."
                       (format "Project: %s [%s]"
                               (projectile-project-name dir)
                               (projectile-project-vcs dir))))
-        :action   (lambda (dir)
-                    (let ((ppr (projectile-project-root)))
-                      (if (and ppr consult-projectile-use-projectile-switch-project)
-                          (projectile-switch-project-by-name dir)
-                        (consult-projectile--file dir))))
+        :action   (lambda (dir) (funcall consult-projectile-source-projectile-project-action dir))
         :items    #'projectile-relevant-known-projects))
 
 ;;;###autoload

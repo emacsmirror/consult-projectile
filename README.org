@@ -31,3 +31,20 @@ The straight way is with the following code:
 
 *** Directly
 The direct way is to clone this repo into your load-path and require =consult-projectile=.
+
+** Changes
+*** 0.6
+_Introduced variable:_
+=consult-projectile-source-projectile-project-action=.
+This allows to change the behavior after selecting a project.
+
+One use case would be the following:
+#+begin_src emacs-lisp
+(defun set-buffer-local-project ()
+  (interactive)
+  (let ((consult-projectile-source-projectile-project-action (lambda (dir) (setq-local projectile-project-root dir))))
+    (consult-projectile)))
+#+end_src
+
+This allows to set a not project related buffer be project related and
+makes =consult-projectile= treat it as one.
