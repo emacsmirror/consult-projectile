@@ -95,10 +95,9 @@ See `consult--multi' for a description of the source values."
   "Function to choose file at project root DIR.
 This function will call `projectile-switch-project' if
 `consult-projectile-use-projectile-switch-project' is t."
-  (let ((ppr (projectile-project-root)))
-    (if (and ppr consult-projectile-use-projectile-switch-project)
-        (projectile-switch-project-by-name dir)
-      (consult-projectile--file dir))))
+  (if consult-projectile-use-projectile-switch-project
+      (projectile-switch-project-by-name dir)
+    (consult-projectile--file dir)))
 
 (defvar consult-projectile-source-projectile-project-action
   'consult-projectile--source-projectile-project-action
