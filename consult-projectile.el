@@ -131,7 +131,10 @@ Function must take one argument, the selected project root directory.")
         :enabled  #'projectile-project-root
         :items
         (lambda ()
-          (projectile-project-dirs (projectile-acquire-root)))))
+          (let ((project-dirs (projectile-project-dirs (projectile-acquire-root))))
+            (if projectile-find-dir-includes-top-level
+                (append '("./") project-dirs)
+              project-dirs)))))
 
 (defvar consult-projectile--source-projectile-file
   (list :name     "Project File"
