@@ -176,42 +176,37 @@ Function must take one argument, the selected project root directory.")
 (defun consult-projectile-switch-to-buffer ()
   "Swith to a project buffer using `consult'."
   (interactive)
-  (let ((consult-projectile-sources '(consult-projectile--source-projectile-buffer)))
-    (call-interactively #'consult-projectile)))
+  (funcall-interactively #'consult-projectile '(consult-projectile--source-projectile-buffer)))
 
 ;;;###autoload
 (defun consult-projectile-find-dir ()
   "Jump to a project's directory using `consult'."
   (interactive)
-  (let ((consult-projectile-sources '(consult-projectile--source-projectile-dir)))
-    (call-interactively #'consult-projectile)))
+  (funcall-interactively #'consult-projectile '(consult-projectile--source-projectile-dir)))
 
 ;;;###autoload
 (defun consult-projectile-find-file ()
   "Jump to a project's file using `consult'."
   (interactive)
-  (let ((consult-projectile-sources '(consult-projectile--source-projectile-file)))
-    (call-interactively #'consult-projectile)))
+  (funcall-interactively #'consult-projectile '(consult-projectile--source-projectile-file)))
 
 ;;;###autoload
 (defun consult-projectile-recentf ()
   "Show a list of recently visited files in a project using `consult'."
   (interactive)
-  (let ((consult-projectile-sources '(consult-projectile--source-projectile-recentf)))
-    (call-interactively #'consult-projectile)))
+  (funcall-interactively #'consult-projectile '(consult-projectile--source-projectile-recentf)))
 
 ;;;###autoload
 (defun consult-projectile-switch-project ()
   "Switch to a projectile visted before using `consult'."
   (interactive)
-  (let ((consult-projectile-sources '(consult-projectile--source-projectile-project)))
-    (call-interactively #'consult-projectile)))
+  (funcall-interactively #'consult-projectile '(consult-projectile--source-projectile-project)))
 
 ;;;###autoload
-(defun consult-projectile ()
+(defun consult-projectile (&optional sources)
   "Create a multi view with projectile integration.   Displays known projects when there are none or the buffers/files accociated with the project."
   (interactive)
-  (when-let (buffer (consult--multi consult-projectile-sources
+  (when-let (buffer (consult--multi (or sources consult-projectile-sources)
                                     :prompt "Switch to: "
                                     :history 'consult-projectile--project-history
                                     :sort nil))
