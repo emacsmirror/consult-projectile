@@ -179,6 +179,20 @@ Function must take one argument, the selected project root directory.")
   (funcall-interactively #'consult-projectile '(consult-projectile--source-projectile-buffer)))
 
 ;;;###autoload
+(defun consult-projectile-switch-to-buffer-other-window ()
+  "Swith to a project buffer using `consult'."
+  (interactive)
+  (let ((consult--buffer-display #'switch-to-buffer-other-window))
+    (consult-projectile-switch-to-buffer)))
+
+;;;###autoload
+(defun consult-projectile-switch-to-buffer-other-frame ()
+  "Swith to a project buffer using `consult'."
+  (interactive)
+  (let ((consult--buffer-display #'switch-to-buffer-other-frame))
+    (consult-projectile-switch-to-buffer)))
+
+;;;###autoload
 (defun consult-projectile-find-dir ()
   "Jump to a project's directory using `consult'."
   (interactive)
